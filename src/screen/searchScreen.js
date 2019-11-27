@@ -1,33 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 import Search from '../components/searchBar'
-import yelp from '../api/yelp'
+import useResults from '../hooks/useResullts'
+import Result from '../components/resultList'
 
 const SearchScreen = () => {
     const [term, setTerm] = useState('');
-    const [result, setResult] = useState([])
-
-    // useEffect(() => {
-    //     searchApi()
-    // }, [])
-
-    const searchApi = async () => {
-        const response = await yelp.get('/search', {
-            params: {
-                term: term,
-                location: 'new york'
-            }
-        })
-        setResult(response.data.businesses)
-        console.log(result)
-    }
-
+    const [searchApi, result, errorMessage] = useResults()
     return (
-        <View>
-            <Search term={term} onTermChange={newTerm => setTerm(newTerm)} onTermSubmit={() => searchApi()} />
-            <Text>Hello</Text>
-            <Text>{term}</Text>
-            <Text>{result.length}</Text>
+        <View style={{ flex: 1 }}>
+            <Search term={term} onTermChange={newTerm => setTerm(newTerm)} onTermSubmit={() => searchApi(term)} />
+            <ScrollView >
+                <Result result={result} />
+            </ScrollView>
         </View>
     )
 }
