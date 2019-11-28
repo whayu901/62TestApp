@@ -1,11 +1,12 @@
-import React from 'react'
-import { View, Text, StyleSheet, FlatList, Dimensions, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, StyleSheet, FlatList, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Card } from 'react-native-paper'
 import { withNavigation } from 'react-navigation'
+import useResults from '../hooks/useResullts'
 
 const numColumns = 2;
-const ResultList = ({ result, navigation }) => {
-
+const ResultList = ({ result, navigation, term, offset, loading }) => {
+    const [searchApi, errorMessage] = useResults()
     const formatData = (data, numColumns) => {
         const numberOfFullRows = Math.floor(data.length / numColumns);
         let numberOfElementsLastRow = data.length - (numberOfFullRows * numColumns);
@@ -13,11 +14,10 @@ const ResultList = ({ result, navigation }) => {
             data.push({ key: `blank-${numberOfElementsLastRow}`, empty: true });
             numberOfElementsLastRow++;
         }
-
         return data;
     };
 
-    const renderItem = ({ item, index }) => {
+    const renderItem = ({ item }) => {
         if (item.empty === true) {
             return <View style={[styles.item, styles.itemInvisible]} />;
         }
@@ -51,13 +51,19 @@ const ResultList = ({ result, navigation }) => {
 
     return (
         <View>
-            <FlatList
-                data={formatData(result, numColumns)}
-                style={styles.container}
-                renderItem={renderItem}
-                numColumns={numColumns}
-                keyExtractor={item => item.id}
-            />
+            {
+                loading  ?
+                    <ActivityIndicator size='large' />
+                    :
+                    <FlatList
+                        data={formatData(result, numColumns)}
+                        style={styles.container}
+                        renderItem={renderItem}
+                        numColumns={numColumns}
+                        keyExtractor={item => item.id}
+                    />
+            }
+
         </View>
 
     )
@@ -66,6 +72,10 @@ const ResultList = ({ result, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    footer: {
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     item: {
         flex: 1,
